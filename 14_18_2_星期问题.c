@@ -4,6 +4,7 @@
 //count days until input date. and calculate which day of a week for input date is
 int days_crtyr(int yr, int mo, int da);
 int days_befyr(int yr);
+void black_Fri(int yr);
 struct month {
 		char name[20];
 		char srt[4];//not str[3]!!!!!!!!!cause '\0' needs one char!!
@@ -29,7 +30,7 @@ int main(void)
 {
 	int days = 0;
 	int da;
-	int mo;
+	int mo = 0;
 	char mostr[20];// when (month input) were string
 	char week[10];
 	int yr;
@@ -44,21 +45,26 @@ int main(void)
 		scanf("%d", &yr);
 	}			
 	printf("Enter month(name or number): ");
-	while (scanf("%s", mostr) != 1)
+	while (scanf("%s", mostr) == 1)
 	{
-		printf("Invalid input! Enter month again: ");
-		while(getchar() != '\n')
-			continue;
-		scanf("%s", mostr);
-	}	
-	for (i = 0; i < 12; i++)//set month
-	{//use 'strcmp' and 'atoi' to compare strings and number
-		if (!strcmp(mon[i].name, mostr) || !strcmp(mon[i].srt, mostr) || mon[i].num == atoi(mostr))
-		{
-			mo = mon[i].num;
-			break;
+		for (i = 0; i < 12; i++)//set month
+		{//use 'strcmp' and 'atoi' to compare strings and number
+			if (!strcmp(mon[i].name, mostr) || !strcmp(mon[i].srt, mostr) || mon[i].num == atoi(mostr))
+			{
+				mo = mon[i].num;
+				break;
+			}
 		}
-	}
+		if (mo == 0)
+		{
+			printf("Invalid input! Enter month again: ");
+			while(getchar() != '\n')
+				continue;
+			continue;
+		}
+		break;		
+	}	
+	
 	printf("Enter day: ");
 	while (scanf("%d", &da) != 1)
 	{
@@ -83,6 +89,9 @@ int main(void)
 	}
 	
 	printf("%d.%d.%d is %s", yr, mo, da, week);
+	black_Fri(yr);
+	for (i = 1500; i < 1800; i++)
+		black_Fri(i);
 	return 0;
 }
 
@@ -93,7 +102,8 @@ int days_crtyr(int yr, int mo, int da)// days of current year
 	
 	if (yr % 400 == 0 || (yr % 4 == 0 && yr % 100 != 0))//闰年的情况 
 		mon[1].day = 29;
-	
+	else 
+		mon[1].day = 28;//这句话少了算很多年的时候会有一个很隐蔽的bug--改变了全局变量却没有改回来	
 	for (i = 0; i < mo - 1; i++)
 		days += mon[i].day;
 	
@@ -116,4 +126,25 @@ int days_befyr(int yr)//days before current year
 		days += days_oneyr(i);
 		
 	return days;
+}
+
+void black_Fri(int yr)
+{
+	int days = 0;
+	int i;
+	int count = 0;
+	int ctr = 0;
+	
+	for (i = 0; i < 12; i++)
+	{
+		days = days_crtyr(yr, mon[i].num, 13) + days_befyr(yr);
+		if (ctr == 0)
+			printf("\nthese are black Fridays in %d: ", yr);
+		if (days % 7 == 5)
+		{
+			count++;
+			printf("%d.13  ", mon[i].num);
+		}
+		ctr++;
+	}
 }
